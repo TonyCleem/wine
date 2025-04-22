@@ -38,9 +38,9 @@ def main():
     duration = now.year - 1920
     needed_form = get_needed_form(duration)
 
-    excel_file = 'wines.xlsx'
+    file = 'wines.xlsx'
     wine_from_excel = pandas.read_excel(
-        excel_file, 
+        file, 
         sheet_name='Лист1', 
         keep_default_na=False, 
         usecols=['Категория', 'Название', 'Сорт', 'Цена', 'Картинка', 'Акция']
