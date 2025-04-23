@@ -1,56 +1,66 @@
 import datetime
 import pandas
 import collections
+import os
+from dotenv import load_dotenv
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 
-def get_needed_form(duration):
+FOUNDATION_DATE = 1920
+
+
+def get_correct_tense_declination(total_years_together):
     declensions = ['год', 'года']
-    needed_form = 'лет'
-    remainder = duration % 10
-    tens_remainder = duration % 100
+    correct_tense_declination = 'лет'
+
+    remainder = total_years_together % 10
+    tens_remainder = total_years_together % 100
 
     if remainder == 1 and tens_remainder != 11:
-        needed_form = declensions[0]
+        correct_tense_declination = declensions[0]
     elif 2 <= remainder <= 4 and not (12 <= tens_remainder <= 14):
-        needed_form = declensions[1]
+        correct_tense_declination = declensions[1]
 
-    return needed_form
+    return correct_tense_declination
 
 
-def update_range_wines(wines):
-    updated_wines = collections.defaultdict(list)
+def sort_wines_by_category(wines):
+    wines_by_category = collections.defaultdict(list)
     for wine in wines:
-        updated_wines[wine['Категория']].append(wine)
-
-    return updated_wines
+        wines_by_category[wine['Категория']].append(wine)
+    return wines_by_category
 
 
 def main():
+    load_dotenv()
+
     env = Environment(
-        loader=FileSystemLoader('.'), 
+        loader=FileSystemLoader('.'),
         autoescape=select_autoescape(['html', 'xml'])
         )
     template = env.get_template('template.html')
 
     now = datetime.datetime.now()
-    duration = now.year - 1920
-    needed_form = get_needed_form(duration)
+    total_years_together = now.year - FOUNDATION_DATE
+    correct_tense_declination = get_correct_tense_declination(
+        total_years_together
+    )
 
-    file = 'wines.xlsx'
+    file = os.getenv("EXCEL_FILE")
     wine_from_excel = pandas.read_excel(
-        file, 
-        sheet_name='Лист1', 
-        keep_default_na=False, 
+        file,
+        sheet_name='Лист1',
+        keep_default_na=False,
         usecols=['Категория', 'Название', 'Сорт', 'Цена', 'Картинка', 'Акция']
         )
     wines = wine_from_excel.to_dict(orient='records')
-    wines = update_range_wines(wines)
+    wines_by_category = sort_wines_by_category(wines)
+
     rendered_page = template.render(
-        years=duration,
-        years_string=needed_form,
-        wines=wines
+        years=total_years_together,
+        years_string=correct_tense_declination,
+        wines=wines_by_category
         )
 
     with open('index.html', 'w', encoding="utf8") as file:

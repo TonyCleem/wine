@@ -109,39 +109,36 @@
             </p>
           </div>
         </div>
-        {% for wine in wines %}
-        <div class="row">
-          <div class="col-12 section-title text-center mb-5">
-            <h2 class="d-block">{{wine}}</h2>
-              </div>
-              {% for bottle in wines[wine] %}
+
+        {% for category, wines  in wines.items() %}
+          <div class="row">
+            <div class="col-12 section-title text-center mb-5">
+              <h2 class="d-block">{{category}}</h2>
+            </div>
+
+            {% for bottle in wines %}
               <div class="col-lg-4 mb-5 col-md-6">
                 <div class="wine_v_1 text-center pb-4 pt-5">
+                  <img src="images/{{bottle.Картинка}}" alt="Image" class="img-fluid">
                   {% if bottle.Акция %}
-                  <img src="images/{{bottle.Картинка}}" alt="Image" class="img-fluid">
                   <img src="assets/profitable.png" style="width:10rem;height: 10rem;position:absolute;right: -20px;top: -20px;">
-                  {% else %}
-                  <img src="images/{{bottle.Картинка}}" alt="Image" class="img-fluid">
                   {% endif %}
-                    <div>
+                  <div>
                     <h3 class="heading mt-3 mb-3 text-dark">{{bottle.Название}}</h3>
                     <p>
                       {% if bottle.Сорт %}
-                      Сорт винограда - {{bottle.Сорт}}<br/>
-                      {% else %}
-                      <br/>
+                         Сорт винограда - {{bottle.Сорт}}<br/> 
                       {% endif %}
                       <span class="price">{{bottle.Цена}} руб</span>
                     </p>
                   </div>
                 </div>
-              </div> 
-              {% endfor %}
-           {% endfor %}
+              </div>
+            {% endfor %}
           </div>
-        </div>
+        {% endfor %}
       </div>
-    </div> 
+    </div>
 
     <div class="hero-2" style="background-image: url('assets/hero_2.jpg');">
     <div><a id="feedback"></a></div>
