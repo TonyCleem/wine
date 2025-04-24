@@ -7,11 +7,14 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 
-FOUNDATION_DATE = 1920
+FOUNDATION_YEAR = 1920
 
 
 def get_correct_tense_declination(total_years_together):
-    declensions = ['год', 'года']
+    declensions = [
+        'год',
+        'года'
+    ]
     correct_tense_declination = 'лет'
 
     remainder = total_years_together % 10
@@ -25,7 +28,7 @@ def get_correct_tense_declination(total_years_together):
     return correct_tense_declination
 
 
-def sort_wines_by_category(wines):
+def grouping_wines_by_categories(wines):
     wines_by_category = collections.defaultdict(list)
     for wine in wines:
         wines_by_category[wine['Категория']].append(wine)
@@ -42,20 +45,27 @@ def main():
     template = env.get_template('template.html')
 
     now = datetime.datetime.now()
-    total_years_together = now.year - FOUNDATION_DATE
+    total_years_together = now.year - FOUNDATION_YEAR
     correct_tense_declination = get_correct_tense_declination(
         total_years_together
     )
 
-    file = os.getenv("EXCEL_FILE")
+    excel_filename = os.getenv("EXCEL_FILE")
     wine_from_excel = pandas.read_excel(
-        file,
+        excel_filename,
         sheet_name='Лист1',
         keep_default_na=False,
-        usecols=['Категория', 'Название', 'Сорт', 'Цена', 'Картинка', 'Акция']
+        usecols=[
+            'Категория',
+            'Название',
+            'Сорт',
+            'Цена',
+            'Картинка',
+            'Акция'
+        ]
         )
     wines = wine_from_excel.to_dict(orient='records')
-    wines_by_category = sort_wines_by_category(wines)
+    wines_by_category = grouping_wines_by_categories(wines)
 
     rendered_page = template.render(
         years=total_years_together,
@@ -63,8 +73,8 @@ def main():
         wines=wines_by_category
         )
 
-    with open('index.html', 'w', encoding="utf8") as file:
-        file.write(rendered_page)
+    with open('index.html', 'w', encoding="utf8") as excel_filename:
+        excel_filename.write(rendered_page)
 
     server = HTTPServer(('0.0.0.0', 8000), SimpleHTTPRequestHandler)
     server.serve_forever()
