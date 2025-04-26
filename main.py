@@ -11,7 +11,10 @@ FOUNDATION_YEAR = 1920
 
 
 def get_correct_tense_declination(total_years_together):
-    declensions = ["год", "года"]
+    declensions = [
+        "год",
+        "года",
+    ]
     correct_tense_declination = "лет"
 
     remainder = total_years_together % 10
